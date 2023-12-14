@@ -18,14 +18,14 @@ export class AutoCICOJob {
   constructor(private readonly service: AppService) {}
 
   @Cron('0 30 8 * * 1-5', {
-    timeZone: 'Asia/Ho_Chi_Minh',
+    timeZone: 'Asia/Saigon',
   })
   async autoCI() {
     return this.handleAutoCICO();
   }
 
-  @Cron('0 30 15 * * 1-5', {
-    timeZone: 'Asia/Ho_Chi_Minh',
+  @Cron('0 55 15 * * 1-5', {
+    timeZone: 'Asia/Saigon',
   })
   async autoCO() {
     console.log('============CO');
