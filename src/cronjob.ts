@@ -24,7 +24,7 @@ export class AutoCICOJob {
     return this.handleAutoCICO();
   }
 
-  @Cron('0 30 16 * * 1-5', {
+  @Cron('0 30 17 * * 1-5', {
     timeZone: 'Asia/Saigon',
   })
   async autoCO() {
