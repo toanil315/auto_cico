@@ -24,7 +24,7 @@ export class AutoCICOJob {
     return this.handleAutoCICO();
   }
 
-  @Cron('0 30 17 * * 1-5', {
+  @Cron('0 0 15 * * 1-5', {
     timeZone: 'Asia/Ho_Chi_Minh',
   })
   async autoCO() {
@@ -61,7 +61,6 @@ export class AutoCICOJob {
 
   async handleReAuth(user: User) {
     const secret = await this.preFlight(user.id);
-    console.log('====secret: ', secret);
     const key = CryptoJS.enc.Base64.parse(secret).toString(CryptoJS.enc.Utf8);
     const { data } = await axios.post(
       'https://api-hcm.banvien.com.vn/gatewayapp/auth',
@@ -73,7 +72,6 @@ export class AutoCICOJob {
         is_external: false,
       },
     );
-    console.log('====data: ', data);
     const newUser = {
       ...user,
       access_token: data.access_token,
