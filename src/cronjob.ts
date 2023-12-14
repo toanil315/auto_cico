@@ -24,10 +24,11 @@ export class AutoCICOJob {
     return this.handleAutoCICO();
   }
 
-  @Cron('0 0 15 * * 1-5', {
+  @Cron('0 10 15 * * 1-5', {
     timeZone: 'Asia/Ho_Chi_Minh',
   })
   async autoCO() {
+    console.log('============CO');
     return this.handleAutoCICO();
   }
 
@@ -42,6 +43,7 @@ export class AutoCICOJob {
 
   async executeCICO(user: User, recall: boolean = true) {
     try {
+      console.log('===== CO for user ', user.id);
       await axios.post(
         'https://api-hcm.banvien.com.vn/gatewayapp/ci-co',
         this.CICO_LOCATION,
