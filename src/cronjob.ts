@@ -4,7 +4,7 @@ import { Cron } from '@nestjs/schedule';
 import axios from 'axios';
 import { User } from './model';
 import * as CryptoJS from 'crypto-js';
-import dayjs from 'dayjs';
+import * as dayjs from 'dayjs';
 import { DURATION_ENUM } from './constant';
 
 @Injectable()
