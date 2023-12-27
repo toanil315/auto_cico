@@ -8,7 +8,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { AppService } from './app.service';
-import { User } from './model';
+import { Leave, User } from './model';
 
 @Controller('users')
 export class AppController {
@@ -34,5 +34,10 @@ export class AppController {
   @Delete(':id')
   deleteUser(@Param('id') id: string) {
     return this.appService.deleteUser(id);
+  }
+
+  @Post('leaves')
+  createLeave(@Body() leave: Leave) {
+    return this.appService.createLeave(leave);
   }
 }

@@ -4,6 +4,8 @@ import { Cron } from '@nestjs/schedule';
 import axios from 'axios';
 import { User } from './model';
 import * as CryptoJS from 'crypto-js';
+import dayjs from 'dayjs';
+import { DURATION_ENUM } from './constant';
 
 @Injectable()
 export class AutoCICOJob {
@@ -21,29 +23,73 @@ export class AutoCICOJob {
     timeZone: 'Asia/Saigon',
   })
   async autoCI() {
-    return this.handleAutoCICO();
+    return this.handleAutoCICO('early');
+  }
+
+  @Cron('0 15 13 * * 1-5', {
+    timeZone: 'Asia/Saigon',
+  })
+  async autoCiOrCo() {
+    return this.handleAutoCICO('mid');
   }
 
   @Cron('0 30 17 * * 1-5', {
     timeZone: 'Asia/Saigon',
   })
   async autoCO() {
-    console.log('============CO');
-    return this.handleAutoCICO();
+    return this.handleAutoCICO('late');
   }
 
-  async handleAutoCICO() {
+  @Cron('0 0 23 * * 7', {
+    timeZone: 'Asia/Saigon',
+  })
+  async clearOutDateLeaves() {
+    const now = Date.now();
+    const leaves = await this.service.getLeaves();
+    const needDeleteLeaves = leaves.filter(
+      (leave) => dayjs(leave.to).valueOf() < now,
+    );
+    needDeleteLeaves.forEach((leave) => {
+      this.service.deleteLeave(leave.id);
+    });
+  }
+
+  async handleAutoCICO(section: 'early' | 'mid' | 'late') {
     const users = await this.service.getUsers();
     for (const user of users) {
       if (user.is_active) {
-        this.executeCICO(user);
+        const cicoConfigs = this.checkLeaveForSkippingCICO(user.id);
+        if (cicoConfigs[section]) {
+          this.executeCICO(user);
+        }
       }
     }
   }
 
+  async checkLeaveForSkippingCICO(userId: string) {
+    const leaves = await this.service.getLeaves();
+    const currentDay = dayjs().format('MM/DD/YYYY');
+    const currentDayLeave = leaves.filter(
+      (leave) => leave.user === userId && leave.from === currentDay,
+    )?.[0];
+    if (currentDayLeave) {
+      switch (currentDayLeave.duration) {
+        case DURATION_ENUM.FULL_DAY:
+          return { early: false, mid: false, late: false };
+
+        case DURATION_ENUM.MORNING:
+          return { early: false, mid: true, late: true };
+
+        case DURATION_ENUM.AFTERNOON:
+          return { early: true, mid: true, late: false };
+      }
+    }
+
+    return { early: true, mid: true, late: true };
+  }
+
   async executeCICO(user: User, recall: boolean = true) {
     try {
-      console.log('===== CO for user ', user.id);
       await axios.post(
         'https://api-hcm.banvien.com.vn/gatewayapp/ci-co',
         this.CICO_LOCATION,

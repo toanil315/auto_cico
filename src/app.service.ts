@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AppRepository } from './app.repository';
-import { User } from './model';
+import { Leave, User } from './model';
 
 @Injectable()
 export class AppService {
@@ -24,5 +24,17 @@ export class AppService {
 
   deleteUser(userId: string) {
     return this.repository.deleteUser(userId);
+  }
+
+  getLeaves() {
+    return this.repository.getLeaves();
+  }
+
+  createLeave(leave: Leave) {
+    return this.repository.createLeave({ ...leave, id: Date.now() });
+  }
+
+  deleteLeave(leaveId: number) {
+    return this.repository.deleteLeave(leaveId);
   }
 }
