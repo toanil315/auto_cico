@@ -58,7 +58,7 @@ export class AutoCICOJob {
     const users = await this.service.getUsers();
     for (const user of users) {
       if (user.is_active) {
-        const cicoConfigs = this.checkLeaveForSkippingCICO(user.id);
+        const cicoConfigs = await this.checkLeaveForSkippingCICO(user.id);
         if (cicoConfigs[section]) {
           this.executeCICO(user);
         }
